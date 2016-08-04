@@ -28,6 +28,6 @@ def elb(profile):
     region = profiles[profile]
     return boto.ec2.elb.connect_to_region(region, profile_name=profile)
 
-def keys(profile):
+def vpc(profile):
     region = profiles[profile]
     return boto.vpc.connect_to_region(region, profile_name=profile)

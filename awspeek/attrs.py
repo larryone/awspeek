@@ -16,5 +16,15 @@ def bucket(bucket, attr):
     else:
         return attr_default(bucket, attr)
 
+def inet(inet, attr):
+    if not inet or not getattr(inet, 'attachment'):
+        return
+    if attr == 'attachment':
+        return inet.attachment.instance_id
+    if attr == 'device_index':
+        return inet.attachment.device_index
+    else:
+        return attr_default(inet, attr)
+
 def attr_default(field, attr):
     return getattr(field, attr, None)
