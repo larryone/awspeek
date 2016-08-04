@@ -26,5 +26,17 @@ def inet(inet, attr):
     else:
         return attr_default(inet, attr)
 
+def route(route, attr):
+    if attr == 'target':
+        if route.instance_id:
+            return route.instance_id
+        elif route.gateway_id:
+            return route.gateway_id
+        elif route.vpc_peering_connection_id:
+            return route.vpc_peering_connection_id
+        elif route.interface_id:
+            return route.interface_id
+    return attr_default(route, attr)
+
 def attr_default(field, attr):
     return getattr(field, attr, None)

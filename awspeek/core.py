@@ -1,5 +1,5 @@
 import conns
-from attrs import ami, bucket, instance, attr_default, inet
+from attrs import ami, bucket, instance, attr_default, inet, route
 import tabulate
 
 def attribute(boto_results, headers, attr_func):
@@ -15,6 +15,12 @@ def route53_fetch(conn):
     for zone in conn.get_zones():
         for record in zone.get_records():
             yield record
+
+def routes_fetch(conn):
+    for route_table in conn.get_all_route_tables():
+        for r in route_table.routes:
+            setattr(r, 'route_table_id', route_table.id)
+            yield r
 
 targets = {
     'instance': {
@@ -60,7 +66,14 @@ targets = {
         'fetch': lambda conn: conn.get_all_network_interfaces(),
         'headers': ('id', 'private_ip_address', 'publicIp', 'vpc_id', 'status', 'attachment', 'device_index'),
         'attr_field': inet,
+    },
+    'routes': {
+        'connection': conns.vpc,
+        'headers': ('route_table_id', 'destination_cidr_block', 'target', 'state'),
+        'fetch': routes_fetch,
+        'attr_field': route,
     }
+
 }
 def show(profile, show):
     headers = targets[show]['headers']
