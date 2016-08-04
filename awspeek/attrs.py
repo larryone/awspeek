@@ -38,5 +38,14 @@ def route(route, attr):
             return route.interface_id
     return attr_default(route, attr)
 
+def route_tables(table, attr):
+    if attr == 'name':
+        return table.tags.get('Name')
+    if attr == 'ismain':
+        return any([assoc.main for assoc in table.associations])
+    if attr == 'subnets':
+        return [assoc.main for assoc in table.associations].count(False)
+    return getattr(table, attr, None)
+
 def attr_default(field, attr):
     return getattr(field, attr, None)

@@ -1,11 +1,18 @@
 import conns
-from attrs import ami, bucket, instance, attr_default, inet, route
+from attrs import ami, bucket, instance, attr_default, inet, route, route_tables
 import tabulate
 
 def attribute(boto_results, headers, attr_func):
     results = []
     for result in boto_results:
-        results.append([attr_func(result, field) or 'missing' for field in headers])
+        # results.append([attr_func(result, field) or 'missing' for field in headers])
+        attributed = []
+        for field in headers:
+            attr = attr_func(result, field)
+            if attr is None:
+                attr = 'missing'
+            attributed.append(attr)
+        results.append(attributed)
     return results
 
 def pretty_print(results, headers):
@@ -72,6 +79,13 @@ targets = {
         'headers': ('route_table_id', 'destination_cidr_block', 'target', 'state'),
         'fetch': routes_fetch,
         'attr_field': route,
+    },
+    'route_tables': {
+        'connection': conns.vpc,
+        'fetch': lambda conn: conn.get_all_route_tables(),
+        'headers': ('id', 'vpc_id', 'name', 'ismain', 'subnets', 'routes'),
+        'attr_field': route_tables,
+
     }
 
 }
