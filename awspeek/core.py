@@ -105,9 +105,13 @@ targets = {
         'fetch': lambda conn: conn.get_all_subnets(),
         'headers': ('id', 'vpc_id', 'cidr_block', 'availability_zone'),
         'attr_field': attrs.subnet
+    },
+    'volume': {
+        'connection': conns.ec2,
+        'fetch': lambda conn: conn.get_all_volumes(),
+        'headers': ('id', 'snapshot_id', 'size', 'status', 'zone', 'create_time', 'status', 'instance', 'device', 'iops', 'type', 'encrypted'),
+        'attr_field': attrs.volume
     }
-    # TODO:
-    # volume_list
 }
 def show(profile, show):
     headers = targets[show]['headers']

@@ -52,5 +52,15 @@ def subnet(subnet, attr):
         return subnet.tags.get('Name')
     return getattr(subnet, attr, None)
 
+def volume(volume, attr):
+    if attr == 'status':
+        return volume.attach_data.status
+    if attr == 'device':
+        return volume.attach_data.device
+    if attr == 'instance':
+        return volume.attach_data.instance_id
+
+    return getattr(volume, attr, None)
+
 def attr_default(field, attr):
     return getattr(field, attr, None)
