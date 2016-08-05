@@ -1,6 +1,7 @@
 import conns
 import tabulate
 import attrs
+import fetch
 
 def attribute(boto_results, headers, attr_func):
     results = []
@@ -17,17 +18,6 @@ def attribute(boto_results, headers, attr_func):
 
 def pretty_print(results, headers):
     return tabulate.tabulate(results, headers, tablefmt='psql')
-
-def route53_fetch(conn):
-    for zone in conn.get_zones():
-        for record in zone.get_records():
-            yield record
-
-def routes_fetch(conn):
-    for route_table in conn.get_all_route_tables():
-        for r in route_table.routes:
-            setattr(r, 'route_table_id', route_table.id)
-            yield r
 
 targets = {
     'instance': {
@@ -56,38 +46,38 @@ targets = {
     'dns_record': {
         'headers': ('name', 'type', 'ttl', 'resource_records'),
         'connection': conns.route53,
-        'fetch': route53_fetch,
+        'fetch': fetch.route53,
     },
     'elb': {
         'headers': ('name', 'instances', 'listeners'),
         'connection': conns.elb,
         'fetch': lambda conn: conn.get_all_load_balancers(),
     },
-    'keys': {
+    'key': {
         'headers': ('name', 'region'),
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_key_pairs(),
     },
-    'nets': {
+    'net': {
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_network_interfaces(),
         'headers': ('id', 'private_ip_address', 'publicIp', 'vpc_id', 'status', 'attachment', 'device_index'),
         'attr_field': attrs.inet,
     },
-    'routes': {
+    'route': {
         'connection': conns.vpc,
         'headers': ('route_table_id', 'destination_cidr_block', 'target', 'state'),
-        'fetch': routes_fetch,
+        'fetch': fetch.route,
         'attr_field': attrs.route,
     },
-    'route_tables': {
+    'route_table': {
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_route_tables(),
         'headers': ('id', 'vpc_id', 'name', 'ismain', 'subnets', 'routes'),
         'attr_field': attrs.route_table,
 
     },
-    'sec_group_rules': {
+    'sec_group_rule': {
         'connection': conns.ec2,
         'fetch': lambda conn: conn.get_all_security_groups(),
         'headers': ('id', 'vpc_id', 'name', 'description'),
