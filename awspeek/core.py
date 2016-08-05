@@ -1,5 +1,5 @@
 import conns
-from attrs import ami, bucket, instance, attr_default, inet, route, route_tables
+from attrs import ami, bucket, instance, attr_default, inet, route, route_tables, subnet
 import tabulate
 
 def attribute(boto_results, headers, attr_func):
@@ -86,8 +86,28 @@ targets = {
         'headers': ('id', 'vpc_id', 'name', 'ismain', 'subnets', 'routes'),
         'attr_field': route_tables,
 
-    }
+    },
+    'sec_group_rules': {
+        'connection': conns.ec2,
+        'fetch': lambda conn: conn.get_all_security_groups(),
+        'headers': ('id', 'vpc_id', 'name', 'description'),
+    },
 
+    # no instance infos yet ( attachment )
+    'snapshot': {
+        'connection': conns.ec2,
+        'fetch': lambda conn: conn.get_all_snapshots(owner='self'),
+        'headers': ('id', 'volume_size', 'status', 'progress', 'description', 'start_time', 'tags'),
+    },
+    # route tables stuff
+    'subnet': {
+        'connection': conns.vpc,
+        'fetch': lambda conn: conn.get_all_subnets(),
+        'headers': ('id', 'vpc_id', 'cidr_block', 'availability_zone'),
+        'attr_field': subnet
+    }
+    # TODO:
+    # volume_list
 }
 def show(profile, show):
     headers = targets[show]['headers']

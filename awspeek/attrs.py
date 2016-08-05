@@ -47,5 +47,10 @@ def route_tables(table, attr):
         return [assoc.main for assoc in table.associations].count(False)
     return getattr(table, attr, None)
 
+def subnet(subnet, attr):
+    if attr == 'name':
+        return subnet.tags.get('Name')
+    return getattr(subnet, attr, None)
+
 def attr_default(field, attr):
     return getattr(field, attr, None)
