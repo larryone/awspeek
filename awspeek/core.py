@@ -1,6 +1,6 @@
 import conns
-from attrs import ami, bucket, instance, attr_default, inet, route, route_tables, subnet
 import tabulate
+import attrs
 
 def attribute(boto_results, headers, attr_func):
     results = []
@@ -34,7 +34,7 @@ targets = {
         'headers': ('id', 'vpc_id', '_state', 'instance_type', 'private_ip_address', 'name'),
         'connection': conns.ec2,
         'fetch': lambda conn: conn.get_only_instances(),
-        'attr_field': instance,
+        'attr_field': attrs.instance,
     },
     'sec_group': {
         'headers': ('id', 'vpc_id', 'name', 'description'),
@@ -45,13 +45,13 @@ targets = {
         'headers': ('id', 'state', 'name', 'boot_vol', 'description'),
         'connection': conns.ec2,
         'fetch': lambda conn: conn.get_all_images(owners=['self']),
-        'attr_field': ami,
+        'attr_field': attrs.ami,
     },
     'bucket': {
         'headers': ('creation_date', 'size', 'name'),
         'connection': conns.s3,
         'fetch': lambda conn: conn.get_all_buckets(),
-        'attr_field': bucket,
+        'attr_field': attrs.bucket,
     },
     'dns_record': {
         'headers': ('name', 'type', 'ttl', 'resource_records'),
@@ -72,19 +72,19 @@ targets = {
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_network_interfaces(),
         'headers': ('id', 'private_ip_address', 'publicIp', 'vpc_id', 'status', 'attachment', 'device_index'),
-        'attr_field': inet,
+        'attr_field': attrs.inet,
     },
     'routes': {
         'connection': conns.vpc,
         'headers': ('route_table_id', 'destination_cidr_block', 'target', 'state'),
         'fetch': routes_fetch,
-        'attr_field': route,
+        'attr_field': attrs.route,
     },
     'route_tables': {
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_route_tables(),
         'headers': ('id', 'vpc_id', 'name', 'ismain', 'subnets', 'routes'),
-        'attr_field': route_tables,
+        'attr_field': attrs.route_table,
 
     },
     'sec_group_rules': {
@@ -104,7 +104,7 @@ targets = {
         'connection': conns.vpc,
         'fetch': lambda conn: conn.get_all_subnets(),
         'headers': ('id', 'vpc_id', 'cidr_block', 'availability_zone'),
-        'attr_field': subnet
+        'attr_field': attrs.subnet
     }
     # TODO:
     # volume_list
@@ -113,5 +113,5 @@ def show(profile, show):
     headers = targets[show]['headers']
     conn = targets[show]['connection'](profile)
     boto_results = targets[show]['fetch'](conn)
-    attributed = attribute(boto_results, headers, targets[show].get('attr_field', attr_default))
+    attributed = attribute(boto_results, headers, targets[show].get('attr_field', attrs.attr_default))
     return pretty_print(attributed, headers)

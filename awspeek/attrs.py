@@ -38,7 +38,7 @@ def route(route, attr):
             return route.interface_id
     return attr_default(route, attr)
 
-def route_tables(table, attr):
+def route_table(table, attr):
     if attr == 'name':
         return table.tags.get('Name')
     if attr == 'ismain':
